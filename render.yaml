@@ -1,0 +1,26 @@
+databases:
+  - name: pep-start-db
+    databaseName: pep_start
+    user: pep_start
+    plan: free
+    region: virginia
+
+services:
+  - type: web
+    name: pep-start
+    runtime: python
+    plan: free
+    region: virginia
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn web:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pep-start-db
+          property: connectionString
+      - key: PEP_START_SECRET_KEY
+        generateValue: true
+      - key: PEP_START_HTTPS_ONLY
+        value: "1"

@@ -41,3 +41,14 @@ CRUD, relacionamentos, classes, repositories, services, validações, exceções
 ## 9. Melhorias futuras
 
 Interface web, autenticação, auditoria, perfis de acesso, exames e migração para um banco servidor em projeto mais avançado.
+
+## Complemento para apresentar a versão web
+
+1. Mostre a versão terminal e explique que ela foi a base para aprender CRUD e SQL.
+2. Abra a versão web e faça login.
+3. Compare os três perfis e demonstre que Recepção não consegue abrir conteúdo clínico.
+4. Registre um exame ou prescrição fictícia com perfil Profissional.
+5. Entre como Administrador e mostre o evento na auditoria.
+6. Mostre a paginação da lista de pacientes.
+7. Abra `/api/docs` e explique o conceito de endpoint.
+8. Mostre `DATABASE_URL` e o script de migração para explicar a evolução SQLite → PostgreSQL.

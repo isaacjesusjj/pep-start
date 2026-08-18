@@ -19,14 +19,19 @@ class PacienteService:
     @staticmethod
     def _validar_nome(nome):
         nome = " ".join(nome.split())
+
         if len(nome) < 3:
             raise ValueError("O nome deve possuir pelo menos 3 caracteres.")
+
         return nome
 
     @staticmethod
     def _validar_data_nascimento(data_nascimento):
         try:
-            data_convertida = datetime.strptime(data_nascimento, "%Y-%m-%d").date()
+            data_convertida = datetime.strptime(
+                data_nascimento,
+                "%Y-%m-%d",
+            ).date()
         except ValueError as erro:
             raise ValueError("Use a data no formato AAAA-MM-DD.") from erro
 
@@ -55,6 +60,7 @@ class PacienteService:
             data_nascimento=self._validar_data_nascimento(data_nascimento),
             telefone=self._normalizar_telefone(telefone),
         )
+
         return self.paciente_repository.cadastrar(paciente)
 
     def listar_pacientes(self):
@@ -67,9 +73,16 @@ class PacienteService:
         nome = nome.strip()
         if not nome:
             raise ValueError("Informe um nome para a busca.")
+
         return self.paciente_repository.buscar_por_nome(nome)
 
-    def atualizar_paciente(self, paciente_id, nome, data_nascimento, telefone=None):
+    def atualizar_paciente(
+        self,
+        paciente_id,
+        nome,
+        data_nascimento,
+        telefone=None,
+    ):
         paciente = self.buscar_por_id(paciente_id)
         if paciente is None:
             raise ValueError("Paciente não encontrado.")
@@ -90,8 +103,11 @@ class PacienteService:
         possui_atendimento = self.atendimento_repository.existe_para_paciente(
             paciente_id
         )
+        possui_registro_web = self.paciente_repository.possui_registros_clinicos_extras(
+            paciente_id
+        )
 
-        if possui_alergia or possui_atendimento:
+        if possui_alergia or possui_atendimento or possui_registro_web:
             raise ValueError(
                 "Não é possível excluir o paciente porque existem "
                 "registros clínicos associados."

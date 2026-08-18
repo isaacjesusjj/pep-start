@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="auth-card">
+  <h1>Configuração inicial</h1>
+  <p>Crie o primeiro administrador. Esta página é desativada automaticamente depois disso.</p>
+  <form method="post" class="form-grid one">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Nome<input name="nome" required></label>
+    <label>E-mail<input type="email" name="email" required></label>
+    <label>Senha<input type="password" name="senha" minlength="8" required></label>
+    <button class="primary" type="submit">Criar administrador</button>
+  </form>
+</section>
+{% endblock %}

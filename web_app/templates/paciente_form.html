@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><div><h1>{{ titulo }}</h1><p>Dados administrativos do paciente.</p></div></div>
+<section class="panel"><form method="post" class="form-grid">
+<input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+<label>Nome completo<input name="nome" required value="{{ paciente.nome if paciente else '' }}"></label>
+<label>Data de nascimento<input type="date" name="data_nascimento" required value="{{ paciente.data_nascimento if paciente else '' }}"></label>
+<label>Telefone<input name="telefone" value="{{ paciente.telefone if paciente and paciente.telefone else '' }}"></label>
+<div class="actions"><button class="primary" type="submit">Salvar</button><a class="button" href="/pacientes">Cancelar</a></div>
+</form></section>
+{% endblock %}

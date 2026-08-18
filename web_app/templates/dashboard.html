@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><div><h1>Dashboard</h1><p>Visão resumida do ambiente acadêmico.</p></div></div>
+<div class="cards">
+  <article class="metric"><span>Pacientes</span><strong>{{ dados.pacientes }}</strong></article>
+  <article class="metric"><span>Atendimentos</span><strong>{{ dados.atendimentos }}</strong></article>
+  <article class="metric"><span>Exames</span><strong>{{ dados.exames }}</strong></article>
+  <article class="metric"><span>Prescrições</span><strong>{{ dados.prescricoes }}</strong></article>
+</div>
+<section class="panel">
+  <h2>Seu perfil: {{ usuario.perfil }}</h2>
+  {% if usuario.perfil == 'RECEPCAO' %}<p>Você pode cadastrar, localizar e atualizar dados administrativos de pacientes. Informações clínicas ficam restritas.</p>{% endif %}
+  {% if usuario.perfil == 'PROFISSIONAL' %}<p>Você pode consultar prontuários e registrar informações clínicas fictícias, mas não administra usuários ou auditoria.</p>{% endif %}
+  {% if usuario.perfil == 'ADMIN' %}<p>Você possui acesso administrativo completo, incluindo usuários e trilha de auditoria.</p>{% endif %}
+</section>
+{% endblock %}

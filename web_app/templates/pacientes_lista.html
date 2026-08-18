@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><div><h1>Pacientes</h1><p>{{ total }} registro(s). Página {{ page }} de {{ paginas }}.</p></div>
+{% if usuario.perfil in ['ADMIN','RECEPCAO'] %}<a class="button primary" href="/pacientes/novo">Novo paciente</a>{% endif %}</div>
+<form class="search" method="get"><input name="q" value="{{ q }}" placeholder="Buscar por nome ou telefone"><button type="submit">Buscar</button></form>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>Nome</th><th>Nascimento</th><th>Telefone</th><th></th></tr></thead><tbody>
+{% for p in pacientes %}<tr><td>{{ p.id }}</td><td>{{ p.nome }}</td><td>{{ p.data_nascimento }}</td><td>{{ p.telefone or '—' }}</td><td><a href="/pacientes/{{ p.id }}">Abrir</a></td></tr>{% else %}<tr><td colspan="5">Nenhum paciente encontrado.</td></tr>{% endfor %}
+</tbody></table></div>
+<div class="pagination">
+{% if page > 1 %}<a href="?page={{ page-1 }}&q={{ q }}">← Anterior</a>{% endif %}
+<span>{{ page }} / {{ paginas }}</span>
+{% if page < paginas %}<a href="?page={{ page+1 }}&q={{ q }}">Próxima →</a>{% endif %}
+</div>
+{% endblock %}

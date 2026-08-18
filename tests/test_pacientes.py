@@ -65,3 +65,22 @@ def test_rejeitar_nome_curto_data_futura_e_telefone_invalido(servicos):
 
     with pytest.raises(ValueError, match="10 ou 11"):
         pacientes.cadastrar_paciente("Pessoa Teste", "2000-01-01", "123")
+
+
+def test_terminal_nao_exclui_paciente_com_exame_da_evolucao_web(servicos):
+    from database.conexao import conectar
+
+    pacientes = servicos["pacientes"]
+    paciente = pacientes.cadastrar_paciente("Paciente Integrado", "2000-01-01", None)
+
+    with conectar() as conexao:
+        conexao.execute(
+            """
+            INSERT INTO exames (paciente_id, nome, data_exame, status)
+            VALUES (?, ?, ?, ?)
+            """,
+            (paciente.id, "Exame fictício", "2026-08-18", "CONCLUIDO"),
+        )
+
+    with pytest.raises(ValueError, match="registros clínicos associados"):
+        pacientes.excluir_paciente(paciente.id)

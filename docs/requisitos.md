@@ -41,3 +41,33 @@
 **RNF07 — Integridade.** Relacionamentos entre pacientes, alergias e atendimentos devem ser protegidos por chaves estrangeiras.
 
 **RNF08 — Reprodutibilidade.** O repositório deve possuir instruções de execução e testes automatizados.
+
+## Evolução web — requisitos adicionais
+
+**RF12 — Autenticar usuário.** O sistema deve permitir login por e-mail e senha armazenada por hash.
+
+**RF13 — Controlar perfis.** O sistema deve diferenciar `ADMIN`, `RECEPCAO` e `PROFISSIONAL`.
+
+**RF14 — Restringir prontuário.** O perfil Recepção não deve visualizar conteúdo clínico.
+
+**RF15 — Gerenciar usuários.** Administradores devem criar e ativar/desativar usuários.
+
+**RF16 — Registrar auditoria.** Ações relevantes devem gerar trilha de auditoria.
+
+**RF17 — Registrar exames fictícios.** Profissional/Admin podem vincular exames a um paciente.
+
+**RF18 — Registrar prescrições fictícias.** Profissional/Admin podem vincular prescrições a um paciente.
+
+**RF19 — Paginar pacientes.** A interface web deve limitar a quantidade de pacientes exibidos por página.
+
+**RF20 — Disponibilizar API REST.** O sistema deve expor endpoints de pacientes e prontuário respeitando autorização.
+
+**RF21 — Suportar PostgreSQL.** A versão web deve aceitar configuração de banco PostgreSQL por URL.
+
+**RNF09 — Segurança de senha.** Senhas devem ser armazenadas por função de derivação segura com salt.
+
+**RNF10 — Proteção CSRF.** Operações de escrita web devem exigir token de sessão.
+
+**RNF11 — Não cachear conteúdo clínico.** Respostas clínicas devem usar `Cache-Control: no-store`.
+
+**RNF12 — Auditoria sem duplicação clínica.** Logs não devem copiar conteúdo clínico desnecessário.

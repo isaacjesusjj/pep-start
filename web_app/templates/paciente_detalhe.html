@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head"><div><h1>{{ paciente.nome }}</h1><p>ID {{ paciente.id }} · Nascimento {{ paciente.data_nascimento }} · {{ paciente.telefone or 'telefone não informado' }}</p></div>
+{% if usuario.perfil in ['ADMIN','RECEPCAO'] %}<a class="button" href="/pacientes/{{ paciente.id }}/editar">Editar cadastro</a>{% endif %}</div>
+{% if request.query_params.get('erro') %}<div class="alert error">{{ request.query_params.get('erro') }}</div>{% endif %}
+{% if not pode_ver_clinico %}
+<section class="panel"><h2>Informações clínicas restritas</h2><p>O perfil RECEPCAO pode trabalhar com cadastro e localização de pacientes, mas não visualiza alergias, atendimentos, exames ou prescrições.</p></section>
+{% else %}
+<section id="alergias" class="panel"><h2>Alergias fictícias</h2><ul>{% for a in alergias %}<li>{{ a.descricao }}</li>{% else %}<li>Nenhuma registrada.</li>{% endfor %}</ul>
+<form method="post" action="/pacientes/{{ paciente.id }}/alergias" class="inline-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input name="descricao" placeholder="Descrição" required><button type="submit">Adicionar</button></form></section>
+
+<section id="atendimentos" class="panel"><h2>Atendimentos fictícios</h2>
+{% for a in atendimentos %}<article class="record"><strong>{{ a.data }} · {{ a.motivo }}</strong>{% if a.observacao %}<p>{{ a.observacao }}</p>{% endif %}</article>{% else %}<p>Nenhum atendimento.</p>{% endfor %}
+<form method="post" action="/pacientes/{{ paciente.id }}/atendimentos" class="form-grid compact"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Data<input type="date" name="data" value="{{ hoje }}" required></label><label>Motivo<input name="motivo" required></label><label class="wide">Observação<textarea name="observacao"></textarea></label><button type="submit">Registrar atendimento</button></form></section>
+
+<section id="exames" class="panel"><h2>Exames fictícios</h2>
+{% for e in exames %}<article class="record"><strong>{{ e.data_exame }} · {{ e.nome }} · {{ e.status }}</strong>{% if e.resultado %}<p><b>Resultado:</b> {{ e.resultado }}</p>{% endif %}{% if e.observacao %}<p>{{ e.observacao }}</p>{% endif %}</article>{% else %}<p>Nenhum exame.</p>{% endfor %}
+<form method="post" action="/pacientes/{{ paciente.id }}/exames" class="form-grid compact"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Exame<input name="nome" required></label><label>Data<input type="date" name="data_exame" value="{{ hoje }}" required></label><label>Status<select name="status"><option>SOLICITADO</option><option>REALIZADO</option><option>CONCLUIDO</option></select></label><label class="wide">Resultado fictício<textarea name="resultado"></textarea></label><label class="wide">Observação<textarea name="observacao"></textarea></label><button type="submit">Registrar exame</button></form></section>
+
+<section id="prescricoes" class="panel"><h2>Prescrições fictícias</h2>
+{% for p in prescricoes %}<article class="record"><strong>{{ p.data_prescricao }} · {{ p.medicamento }}</strong><p>{{ p.dose }} · {{ p.frequencia }}</p>{% if p.observacao %}<p>{{ p.observacao }}</p>{% endif %}</article>{% else %}<p>Nenhuma prescrição.</p>{% endfor %}
+<form method="post" action="/pacientes/{{ paciente.id }}/prescricoes" class="form-grid compact"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Medicamento fictício<input name="medicamento" required></label><label>Dose<input name="dose" required></label><label>Frequência<input name="frequencia" required></label><label>Data<input type="date" name="data_prescricao" value="{{ hoje }}" required></label><label class="wide">Observação<textarea name="observacao"></textarea></label><button type="submit">Registrar prescrição</button></form></section>
+{% endif %}
+{% endblock %}

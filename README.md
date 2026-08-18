@@ -1,55 +1,116 @@
 # PEP Start — Prontuário Eletrônico Educacional
 
-Projeto acadêmico em Python para estudar os fundamentos de um **Prontuário Eletrônico do Paciente (PEP)** por meio de uma aplicação de terminal com SQLite.
+Projeto acadêmico em Python para estudar a evolução de um **Prontuário Eletrônico do Paciente (PEP)**: começa com uma aplicação de terminal e avança para uma aplicação web com autenticação, perfis, auditoria, API REST e suporte de evolução para PostgreSQL.
 
-> **Uso exclusivamente educacional.** O projeto utiliza apenas dados fictícios e não foi projetado, validado ou certificado para uso clínico real.
+> **Uso exclusivamente educacional.** Todos os dados clínicos devem ser fictícios. O projeto não foi projetado, validado ou certificado para atendimento clínico real.
 
-## Objetivo
+## Evolução do projeto
 
-O PEP Start foi criado para praticar, de forma progressiva e explicável:
+O repositório preserva duas etapas de aprendizado:
 
-- lógica de programação em Python;
-- Programação Orientada a Objetos em nível introdutório;
-- CRUD;
-- SQL e SQLite;
-- chaves primárias e estrangeiras;
-- relacionamentos 1:N;
-- separação entre Model, Service e Repository;
-- validações e regras de negócio;
-- testes automatizados com pytest;
-- documentação e organização de repositório GitHub.
+- **Versão 1 — Terminal:** Python + `sqlite3` + Services + Repositories.
+- **Versão 2 — Web:** FastAPI + SQLAlchemy + templates HTML + sessões + perfis + auditoria + API REST.
+
+A versão web usa o mesmo banco SQLite por padrão, então pacientes já cadastrados pela versão de terminal continuam disponíveis.
 
 ## Funcionalidades
 
-- cadastrar pacientes;
-- listar pacientes;
-- buscar paciente por ID;
-- buscar paciente por nome ou parte do nome;
-- atualizar cadastro;
-- excluir paciente sem registros clínicos associados;
-- registrar alergias fictícias;
-- impedir alergias duplicadas para o mesmo paciente;
-- registrar atendimentos fictícios;
-- consultar prontuário resumido;
-- exibir histórico do atendimento mais recente para o mais antigo;
-- impedir atendimento em data futura;
-- impedir atendimento anterior ao nascimento do paciente;
-- preservar relacionamentos com chaves estrangeiras.
+### Pacientes
+
+- cadastrar, listar, buscar e atualizar pacientes;
+- paginação de 10 pacientes por página na interface web;
+- busca por nome ou telefone;
+- preservação de integridade dos registros clínicos.
+
+### Prontuário fictício
+
+- alergias;
+- atendimentos;
+- exames fictícios;
+- prescrições fictícias;
+- ordenação cronológica do histórico;
+- validação de datas em relação ao nascimento do paciente e ao dia atual.
+
+### Autenticação e perfis
+
+Existem três perfis:
+
+| Perfil | Principais permissões |
+|---|---|
+| `RECEPCAO` | cadastrar, localizar e atualizar dados administrativos de pacientes |
+| `PROFISSIONAL` | consultar prontuário e registrar alergias, atendimentos, exames e prescrições fictícias |
+| `ADMIN` | acesso completo, gerenciamento de usuários e consulta da auditoria |
+
+A Recepção **não visualiza conteúdo clínico**. Um Profissional **não administra usuários nem auditoria**.
+
+### Auditoria
+
+O sistema registra eventos como:
+
+- login bem-sucedido ou falho;
+- visualização de paciente/prontuário;
+- criação e atualização de paciente;
+- registro de exame, prescrição, alergia e atendimento;
+- uso da API;
+- criação e ativação/desativação de usuários.
+
+A auditoria guarda metadados da ação, usuário, recurso, horário e IP. Ela evita copiar conteúdo de exames, prescrições e observações clínicas para o log.
+
+### API REST
+
+A versão 2 possui API inicial em:
+
+```text
+/api/v1
+```
+
+Principais endpoints:
+
+```text
+GET  /api/v1/csrf
+GET  /api/v1/pacientes
+GET  /api/v1/pacientes/{id}
+GET  /api/v1/pacientes/{id}/prontuario
+POST /api/v1/pacientes
+```
+
+A documentação OpenAPI interativa fica em:
+
+```text
+http://127.0.0.1:8000/api/docs
+```
+
+A API respeita os mesmos perfis da interface web.
 
 ## Tecnologias
 
 | Tecnologia | Uso |
 |---|---|
 | Python 3.10+ | Linguagem principal |
-| SQLite | Banco de dados local |
-| `sqlite3` | Comunicação entre Python e SQLite |
+| SQLite | Banco padrão para estudo local |
+| FastAPI | Interface web e API REST |
+| Uvicorn | Servidor ASGI local |
+| SQLAlchemy 2 | ORM/camada de persistência da versão web |
+| Jinja2 | Templates HTML |
+| SessionMiddleware | Sessões autenticadas |
+| PBKDF2-SHA256 | Hash de senhas |
+| PostgreSQL | Banco opcional para evolução avançada |
+| psycopg 3 | Driver PostgreSQL |
 | pytest | Testes automatizados |
-| GitHub Actions | Execução automática dos testes |
-| Mermaid | Diagramas na documentação |
+| GitHub Actions | Integração contínua |
+| Mermaid | Diagramas |
 
-A aplicação principal usa apenas bibliotecas da própria instalação do Python. O `pytest` é necessário somente para executar os testes automatizados localmente.
+### O que é FastAPI?
+
+FastAPI é um framework Python para aplicações web e APIs. Neste projeto ele recebe requisições HTTP, escolhe a rota correta e devolve HTML ou JSON.
+
+### O que é ORM?
+
+ORM significa **Object-Relational Mapping**. O SQLAlchemy permite representar tabelas como classes Python. Ele não elimina o banco relacional: por trás, continua gerando e executando SQL. A versão 1 permanece no repositório justamente para permitir comparar SQL direto com ORM.
 
 ## Arquitetura
+
+### Versão 1
 
 ```text
 Usuário
@@ -63,170 +124,131 @@ Repositories
 SQLite
 ```
 
-### Responsabilidades
+### Versão 2
 
-- **Models:** representam Paciente, Alergia e Atendimento.
-- **Services:** aplicam validações e regras de negócio.
-- **Repositories:** executam SQL e convertem resultados do banco em objetos.
-- **Database:** cria e gerencia conexões com o SQLite.
-- **main.py:** apresenta o menu e recebe a interação do usuário.
+```text
+Navegador / Cliente API
+          ↓
+        FastAPI
+          ↓
+ Autenticação + Perfis
+          ↓
+ Rotas HTML / API REST
+          ↓
+      SQLAlchemy ORM
+          ↓
+ SQLite ou PostgreSQL
+          ↓
+        Auditoria
+```
 
-Essa separação foi mantida propositalmente simples para que um estudante iniciante/intermediário consiga acompanhar o fluxo completo.
-
-## Estrutura de pastas
+## Estrutura principal
 
 ```text
 pep-start/
-├── .github/
-│   └── workflows/
-│       └── tests.yml
+├── .github/workflows/tests.yml
 ├── database/
-│   ├── __init__.py
 │   ├── conexao.py
 │   └── schema.sql
 ├── docs/
-│   ├── arquitetura.md
-│   ├── documentacao_academica.md
-│   ├── modelagem_banco.md
-│   ├── perguntas_e_respostas.md
-│   ├── requisitos.md
-│   ├── regras_negocio.md
-│   ├── roteiro_apresentacao.md
-│   ├── testes.md
-│   └── uml.md
-├── models/
-│   ├── __init__.py
-│   ├── alergia.py
-│   ├── atendimento.py
-│   └── paciente.py
-├── repositories/
-│   ├── __init__.py
-│   ├── alergia_repository.py
-│   ├── atendimento_repository.py
-│   └── paciente_repository.py
-├── services/
-│   ├── __init__.py
-│   ├── paciente_service.py
-│   └── prontuario_service.py
+├── models/                  # versão terminal
+├── repositories/            # versão terminal
+├── services/                # versão terminal
+├── shared/                  # validações compartilhadas
+├── scripts/
+│   └── migrar_sqlite.py
+├── web_app/
+│   ├── routes/
+│   │   ├── auth.py
+│   │   ├── pacientes.py
+│   │   ├── admin.py
+│   │   └── api.py
+│   ├── templates/
+│   ├── static/
+│   ├── audit.py
+│   ├── database.py
+│   ├── models.py
+│   └── security.py
 ├── tests/
-│   ├── conftest.py
-│   ├── test_banco.py
-│   ├── test_pacientes.py
-│   └── test_prontuario.py
-├── .gitignore
-├── executar.bat
-├── executar.sh
-├── main.py
-├── pytest.ini
+├── main.py                  # terminal
+├── web.py                   # aplicação web
+├── requirements.txt
 ├── requirements-dev.txt
-├── testar.bat
-├── testar.sh
 └── README.md
 ```
 
-## Banco de dados
+## Como executar a versão web
 
-O sistema usa três tabelas principais:
-
-```text
-pacientes 1 ─────── N alergias
-    │
-    └────────────── N atendimentos
-```
-
-O arquivo `database/schema.sql` cria as tabelas automaticamente na primeira execução.
-
-O banco local é salvo em:
-
-```text
-pep_start.db
-```
-
-Esse arquivo está no `.gitignore`, portanto os dados locais não devem ser enviados ao GitHub.
-
-## Como executar do zero
-
-### 1. Pré-requisito
-
-Instale Python 3.10 ou superior e confirme:
-
-```bash
-python --version
-```
-
-No Windows, também pode funcionar:
-
-```bash
-py --version
-```
-
-### 2. Baixe o projeto
+### 1. Clonar
 
 ```bash
 git clone https://github.com/isaacjesusjj/pep-start.git
 cd pep-start
 ```
 
-Também é possível baixar o ZIP do repositório e extrair a pasta.
-
-### 3. Execute
+### 2. Criar ambiente virtual (recomendado)
 
 Windows:
 
-```bat
-executar.bat
-```
-
-ou:
-
 ```bash
-py main.py
+py -m venv .venv
+.venv\Scripts\activate
 ```
 
 Linux/macOS:
 
 ```bash
-./executar.sh
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-ou:
+### 3. Instalar dependências
 
 ```bash
-python3 main.py
+python -m pip install -r requirements.txt
 ```
 
-Na primeira execução, o banco e as tabelas são criados automaticamente.
+### 4. Configurar chave de sessão
 
-## Exemplo de uso
+Para desenvolvimento local o sistema possui uma chave padrão didática. Para qualquer ambiente compartilhado, configure uma chave própria.
+
+Windows PowerShell:
+
+```powershell
+$env:PEP_START_SECRET_KEY="troque-por-uma-chave-longa-e-aleatoria"
+```
+
+Linux/macOS:
+
+```bash
+export PEP_START_SECRET_KEY="troque-por-uma-chave-longa-e-aleatoria"
+```
+
+### 5. Iniciar
+
+```bash
+python web.py
+```
+
+Acesse:
 
 ```text
-================================
-           PEP START
-================================
-1 - Cadastrar paciente
-2 - Listar pacientes
-3 - Buscar paciente
-4 - Atualizar paciente
-5 - Registrar alergia
-6 - Registrar atendimento
-7 - Consultar prontuário
-8 - Excluir paciente
-0 - Sair
+http://127.0.0.1:8000
 ```
 
-Exemplo fictício:
+Na primeira execução, você será direcionado para `/setup`, onde cria o primeiro usuário `ADMIN`. Depois que existe um usuário, essa configuração inicial não pode mais criar outro administrador.
 
-```text
-Nome: Maria Oliveira
-Nascimento: 1999-03-14
-Telefone: 11999999999
+## Executar a versão de terminal
+
+```bash
+python main.py
 ```
 
-Depois é possível registrar alergias e atendimentos fictícios e consultar tudo pela opção `7 - Consultar prontuário`.
+A versão de terminal continua disponível como registro da primeira etapa do aprendizado.
 
 ## Testes automatizados
 
-Instale a dependência de desenvolvimento:
+Instale as dependências de desenvolvimento:
 
 ```bash
 python -m pip install -r requirements-dev.txt
@@ -238,117 +260,109 @@ Execute:
 python -m pytest
 ```
 
-ou:
+Estado atual da suíte:
+
+```text
+28 testes aprovados
+```
+
+Os testes cobrem:
+
+- CRUD e validações da versão 1;
+- integridade por chave estrangeira;
+- hash e verificação de senha;
+- cabeçalhos de segurança;
+- perfis de acesso;
+- bloqueio de conteúdo clínico para Recepção;
+- criação de exame e prescrição por Profissional;
+- auditoria de visualização;
+- paginação;
+- API REST e autorização;
+- migração SQLite para outro banco SQLAlchemy;
+- execução direta do script de migração.
+
+## PostgreSQL
+
+A aplicação web pode utilizar PostgreSQL definindo `DATABASE_URL`.
+
+Exemplo:
+
+```text
+postgresql+psycopg://usuario:senha@localhost:5432/pep_start
+```
+
+Windows PowerShell:
+
+```powershell
+$env:DATABASE_URL="postgresql+psycopg://usuario:senha@localhost:5432/pep_start"
+python web.py
+```
+
+### Migrar dados do SQLite
+
+Primeiro faça backup de `pep_start.db` e use um banco PostgreSQL de destino **vazio**.
 
 ```bash
-pytest
+python scripts/migrar_sqlite.py pep_start.db "postgresql+psycopg://usuario:senha@localhost:5432/pep_start"
 ```
 
-No Windows também existe:
+O mesmo mecanismo de migração é testado automaticamente usando SQLite como banco de destino. Um servidor PostgreSQL real não faz parte da suíte local do projeto.
 
-```bat
-testar.bat
-```
-
-No Linux/macOS:
-
-```bash
-./testar.sh
-```
-
-A suíte cobre cadastro, busca, atualização, exclusão, validações, alergias, atendimentos, prontuário, ordenação do histórico e integridade por chave estrangeira.
-
-## Testes automáticos no GitHub
-
-O workflow `.github/workflows/tests.yml` executa automaticamente:
-
-1. checkout do código;
-2. Python 3.12;
-3. instalação do pytest;
-4. validação de sintaxe com `compileall`;
-5. execução de todos os testes.
-
-Ele roda em `push` para `main` e em pull requests.
+Veja [`docs/migracao_postgresql.md`](docs/migracao_postgresql.md).
 
 ## Segurança e privacidade
 
-Este projeto não implementa autenticação porque o objetivo do Projeto 1 é trabalhar fundamentos de Python, CRUD e banco de dados. Autenticação e controle de acesso serão estudados em projetos posteriores.
+Medidas implementadas para aprendizado:
 
-Mesmo assim, algumas medidas são aplicadas:
-
-- consultas SQL parametrizadas com `?`;
-- `FOREIGN KEY` para manter relacionamentos válidos;
-- `ON DELETE RESTRICT` para impedir exclusão direta de paciente com histórico;
-- validações na camada Service;
+- senhas armazenadas com PBKDF2-SHA256 e salt aleatório;
+- sessões assinadas;
+- token CSRF em formulários e escrita via API;
+- autorização por perfil;
+- auditoria de acessos;
+- SQL parametrizado/ORM;
+- `FOREIGN KEY` e `ON DELETE RESTRICT`;
+- cabeçalhos `X-Content-Type-Options`, `X-Frame-Options` e `Referrer-Policy`;
+- `Cache-Control: no-store` em páginas clínicas e API;
+- opção de cookie `Secure` via `PEP_START_HTTPS_ONLY=1`;
+- conteúdo clínico não copiado para detalhes da auditoria;
 - banco local ignorado pelo Git;
 - dados de demonstração exclusivamente fictícios.
 
-Em um PEP real, seriam necessárias medidas muito mais fortes, como autenticação, autorização por perfil, trilhas de auditoria, criptografia, gestão de sessões, registros de acesso e políticas institucionais adequadas à LGPD.
+Isso **não torna o sistema adequado para uso real em saúde**. Um produto real exigiria análise de riscos, infraestrutura protegida, criptografia adequada, gestão institucional de identidade, backups, disponibilidade, monitoramento, políticas de retenção, revisão jurídica/LGPD e requisitos regulatórios aplicáveis.
 
-## Limitações
+## Limitações atuais
 
-- aplicação somente em terminal;
-- um único contexto de usuário, sem login;
-- não possui interface web;
-- não possui prescrições, exames ou agenda;
-- SQLite é adequado ao projeto educacional, não a um cenário hospitalar de larga escala;
-- não há integração com sistemas externos;
-- não deve ser usado com dados reais.
+- projeto acadêmico, não software médico;
+- sessão web baseada em cookie, não OAuth2/OIDC;
+- API usa a sessão web existente e não possui tokens próprios para integrações externas;
+- não há recuperação de senha;
+- não há MFA;
+- não há bloqueio progressivo de tentativas de login;
+- auditoria não é criptograficamente imutável;
+- migração PostgreSQL não é testada contra servidor PostgreSQL real no CI;
+- não há upload de documentos ou integração com sistemas de saúde externos.
 
-## Melhorias futuras
+## Documentação
 
-- autenticação;
-- diferentes perfis de acesso;
-- auditoria de acessos;
-- interface web;
-- exames e prescrições fictícias;
-- paginação de pacientes;
-- exportação de relatórios;
-- migração para PostgreSQL em projeto mais avançado;
-- API REST em evolução posterior.
+A pasta [`docs/`](docs/) inclui:
 
-## Documentação acadêmica
-
-A pasta [`docs/`](docs/) contém:
-
-- requisitos funcionais e não funcionais;
+- requisitos;
 - regras de negócio;
 - arquitetura;
-- modelagem do banco;
 - UML;
-- documentação acadêmica completa;
-- estratégia e evidências de testes;
-- roteiro para apresentação;
-- perguntas e respostas para professor ou entrevista.
-
-## Padrão de commits sugerido
-
-```text
-feat: adiciona cadastro e consulta de pacientes
-feat: implementa alergias e atendimentos
-feat: adiciona consulta de prontuario
-fix: reforca validacoes de datas e relacionamentos
-test: adiciona testes automatizados do sistema
-docs: adiciona documentacao academica e README
-ci: executa testes automaticamente no GitHub Actions
-```
-
-### Prefixos
-
-- `feat`: nova funcionalidade;
-- `fix`: correção;
-- `test`: testes;
-- `docs`: documentação;
-- `ci`: integração contínua;
-- `refactor`: reorganização sem alterar a funcionalidade;
-- `chore`: manutenção geral.
+- modelagem do banco;
+- perfis e permissões;
+- auditoria;
+- segurança web;
+- API REST;
+- migração para PostgreSQL;
+- testes;
+- documentação acadêmica;
+- roteiro de apresentação;
+- perguntas e respostas.
 
 ## Autor
 
 **Isaac de Jesus**
 
 Projeto desenvolvido para estudo e portfólio acadêmico em Análise e Desenvolvimento de Sistemas, com foco em TI aplicada à saúde.
-
-## Aviso
-
-Este software é uma simulação acadêmica. Os exemplos e informações clínicas usados na documentação e nos testes são fictícios e não representam orientação médica ou um prontuário destinado a uso assistencial.

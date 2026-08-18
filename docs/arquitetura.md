@@ -1,6 +1,10 @@
 # Arquitetura do PEP Start
 
-## Visão geral
+## Visão da evolução
+
+O repositório mantém duas arquiteturas para mostrar progressão pedagógica.
+
+### Versão 1 — terminal
 
 ```mermaid
 flowchart TD
@@ -12,26 +16,56 @@ flowchart TD
     R --> MO
 ```
 
-## `main.py`
+A versão de terminal permite visualizar SQL e separação de responsabilidades sem framework web.
 
-É a camada de interação. Mostra menus, solicita entradas e apresenta resultados. Não contém SQL.
+### Versão 2 — web
 
-## Models
+```mermaid
+flowchart TD
+    C[Navegador ou cliente API] --> F[FastAPI]
+    F --> AU[Autenticação e autorização]
+    AU --> H[Rotas HTML]
+    AU --> A[API REST]
+    H --> O[SQLAlchemy ORM]
+    A --> O
+    O --> DB[(SQLite ou PostgreSQL)]
+    H --> L[Auditoria]
+    A --> L
+    L --> DB
+```
 
-As classes `Paciente`, `Alergia` e `Atendimento` representam os dados usados dentro do programa. Elas não conhecem detalhes de SQL.
+## FastAPI
 
-## Services
+É o framework responsável por receber requisições HTTP e direcioná-las para funções Python. A aplicação possui rotas HTML e rotas JSON.
 
-`PacienteService` e `ProntuarioService` concentram regras como validação de datas, telefone, existência de paciente e proteção de exclusão.
+## SQLAlchemy
 
-## Repositories
+A versão web utiliza ORM. Classes como `Paciente`, `Usuario`, `Exame` e `Auditoria` são mapeadas para tabelas. O ORM continua usando um banco relacional e SQL por baixo.
 
-Os repositories executam `INSERT`, `SELECT`, `UPDATE` e `DELETE`. Também convertem as linhas retornadas pelo SQLite para objetos Python.
+## `web_app/routes/auth.py`
 
-## Database
+Cuida da configuração inicial, login e logout.
 
-`database/conexao.py` controla a abertura e o fechamento das conexões. Em caso de sucesso realiza `commit`; em caso de exceção realiza `rollback`.
+## `web_app/routes/pacientes.py`
 
-## Por que não usamos Controller, API ou ORM?
+Cuida das páginas de pacientes, paginação e registros clínicos fictícios.
 
-Porque o projeto é deliberadamente pequeno. Introduzir essas camadas agora aumentaria a quantidade de conceitos sem resolver um problema real do escopo. Projetos posteriores podem evoluir para arquitetura web e frameworks.
+## `web_app/routes/admin.py`
+
+Cuida de usuários e auditoria; essas rotas são restritas a `ADMIN`.
+
+## `web_app/routes/api.py`
+
+Expõe a primeira API REST do projeto. As mesmas regras de perfil são reaproveitadas.
+
+## `web_app/security.py`
+
+Concentra hash de senha, verificação de senha, sessão, CSRF e decorators/dependências de permissão.
+
+## `web_app/audit.py`
+
+Centraliza gravação de eventos de auditoria.
+
+## Banco
+
+SQLite continua sendo o padrão. A camada SQLAlchemy permite configurar PostgreSQL usando `DATABASE_URL`.

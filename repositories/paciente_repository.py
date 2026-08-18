@@ -95,3 +95,17 @@ class PacienteRepository:
                 (paciente_id,),
             )
             return cursor.rowcount > 0
+    def possui_registros_clinicos_extras(self, paciente_id):
+        """Verifica exames e prescrições criados pela evolução web."""
+
+        sql = """
+            SELECT EXISTS(
+                SELECT 1 FROM exames WHERE paciente_id = ?
+            ) OR EXISTS(
+                SELECT 1 FROM prescricoes WHERE paciente_id = ?
+            ) AS possui
+        """
+        with conectar() as conexao:
+            linha = conexao.execute(sql, (paciente_id, paciente_id)).fetchone()
+        return bool(linha["possui"])
+

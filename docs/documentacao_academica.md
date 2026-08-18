@@ -85,3 +85,25 @@ As próximas evoluções podem incluir autenticação, auditoria, interface web,
 ## 20. Conclusão
 
 O PEP Start demonstra como fundamentos de programação e banco de dados podem ser aplicados a TI em saúde. Mais importante que a quantidade de funcionalidades é a capacidade de compreender o fluxo completo entre entrada do usuário, regras de negócio, objetos, SQL e persistência, além de conseguir testar e explicar essas decisões.
+
+---
+
+# Evolução 2 — aplicação web e segurança
+
+Após a versão inicial de terminal, o PEP Start foi evoluído para demonstrar novos conceitos de ADS sem remover a implementação original. A nova etapa adicionou FastAPI, SQLAlchemy ORM, interface HTML, autenticação, autorização por perfil, trilha de auditoria, exames e prescrições fictícias, paginação, API REST e opção de PostgreSQL.
+
+## Justificativa da evolução
+
+A versão 1 é adequada para aprender CRUD, SQL e organização de código. A versão 2 introduz problemas que surgem quando mais de uma pessoa utiliza um sistema: identificação do usuário, definição do que cada perfil pode consultar, rastreabilidade de acessos e comunicação por HTTP.
+
+## Segurança e LGPD — relação prática
+
+O projeto não afirma conformidade legal ou regulatória. Entretanto, aplica conceitos relevantes para estudo: menor privilégio, hash de senha, sessão, proteção CSRF, auditoria e minimização do conteúdo armazenado em logs. O uso continua restrito a dados fictícios.
+
+## Banco mais avançado
+
+SQLite permanece como opção local. PostgreSQL foi incluído como caminho de evolução por meio da configuração `DATABASE_URL` e de um script de migração que copia dados existentes para um banco SQLAlchemy vazio.
+
+## API
+
+A API REST permite explorar integração entre sistemas. Nesta etapa ela reutiliza a sessão da interface web; autenticação por tokens e OAuth2 ficam documentadas como evolução posterior adequada para integrações externas.

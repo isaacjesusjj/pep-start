@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ titulo or 'PEP Start' }} | PEP Start</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/dashboard">PEP Start <span>Web</span></a>
+    {% if usuario %}
+    <nav>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/pacientes">Pacientes</a>
+      {% if usuario.perfil == 'ADMIN' %}
+      <a href="/usuarios">Usuários</a>
+      <a href="/auditoria">Auditoria</a>
+      {% endif %}
+      <a href="/api/docs">API</a>
+    </nav>
+    <div class="userbox">
+      <span>{{ usuario.nome }} · {{ usuario.perfil }}</span>
+      <form action="/logout" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button class="link-button" type="submit">Sair</button>
+      </form>
+    </div>
+    {% endif %}
+  </header>
+  <main class="container">
+    {% if erro %}<div class="alert error">{{ erro }}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer>
+    Projeto acadêmico. Use somente dados fictícios. Não destinado a atendimento clínico real.
+  </footer>
+</body>
+</html>

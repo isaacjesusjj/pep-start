@@ -5,7 +5,7 @@ import pytest
 from database.conexao import conectar, obter_caminho_banco
 
 
-def test_banco_cria_as_tres_tabelas(servicos):
+def test_banco_cria_tabelas_do_terminal_e_da_evolucao_web(servicos):
     with conectar() as conexao:
         tabelas = {
             linha["name"]
@@ -14,7 +14,15 @@ def test_banco_cria_as_tres_tabelas(servicos):
             ).fetchall()
         }
 
-    assert {"pacientes", "alergias", "atendimentos"}.issubset(tabelas)
+    assert {
+        "pacientes",
+        "alergias",
+        "atendimentos",
+        "exames",
+        "prescricoes",
+        "usuarios",
+        "auditoria",
+    }.issubset(tabelas)
 
 
 def test_chave_estrangeira_bloqueia_exclusao_direta(servicos):

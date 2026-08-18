@@ -47,3 +47,57 @@ As FKs existem para impedir registros clínicos órfãos. `ON DELETE RESTRICT` b
 ## Índices
 
 O schema cria índices para nome de paciente e relacionamentos por `paciente_id`. Eles ajudam o banco a localizar dados usados com frequência nas consultas.
+
+## Evolução da modelagem web
+
+Além das tabelas iniciais, a versão web adiciona:
+
+### `exames`
+
+- `id` — PK;
+- `paciente_id` — FK para `pacientes`;
+- `nome`;
+- `data_exame`;
+- `status`;
+- `resultado`;
+- `observacao`.
+
+### `prescricoes`
+
+- `id` — PK;
+- `paciente_id` — FK;
+- `medicamento`;
+- `dose`;
+- `frequencia`;
+- `data_prescricao`;
+- `observacao`.
+
+### `usuarios`
+
+- `id` — PK;
+- `nome`;
+- `email` — único;
+- `senha_hash`;
+- `perfil`;
+- `ativo`;
+- `criado_em`.
+
+### `auditoria`
+
+- `id` — PK;
+- `usuario_id` — FK opcional;
+- `acao`;
+- `recurso`;
+- `recurso_id`;
+- `detalhes`;
+- `ip`;
+- `criado_em`.
+
+```mermaid
+erDiagram
+    PACIENTES ||--o{ ALERGIAS : possui
+    PACIENTES ||--o{ ATENDIMENTOS : possui
+    PACIENTES ||--o{ EXAMES : possui
+    PACIENTES ||--o{ PRESCRICOES : possui
+    USUARIOS ||--o{ AUDITORIA : realiza
+```

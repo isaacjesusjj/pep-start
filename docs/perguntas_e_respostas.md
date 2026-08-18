@@ -59,3 +59,35 @@ Uma evolução poderia introduzir autenticação, API, interface web, banco serv
 ## 15. Qual foi uma decisão importante de arquitetura?
 
 Manter as entidades simples e retirar delas o SQL. A persistência fica nos repositories e as regras ficam nos services, tornando cada parte mais fácil de testar e explicar.
+
+## Perguntas adicionais sobre a evolução web
+
+### Por que existem três perfis?
+Para demonstrar autorização e menor privilégio. Nem todo usuário precisa visualizar ou alterar as mesmas informações.
+
+### Qual a diferença entre autenticação e autorização?
+Autenticação identifica quem entrou. Autorização verifica o que esse usuário pode fazer depois de autenticado.
+
+### Por que a senha não é salva diretamente?
+Porque o banco não deve precisar conhecer a senha original. O sistema armazena um hash derivado com salt e compara o resultado no login.
+
+### O que é CSRF?
+É um tipo de ataque em que outro site tenta induzir o navegador autenticado a executar uma ação. O token CSRF ajuda o servidor a confirmar que a operação de escrita veio da sessão esperada.
+
+### O que é auditoria?
+É uma trilha de eventos que permite saber quem acessou ou modificou determinado recurso e em qual momento.
+
+### Por que não colocar o resultado do exame dentro da auditoria?
+Para não duplicar conteúdo clínico sensível. A auditoria precisa rastrear a ação, não virar uma segunda base de prontuário.
+
+### Por que SQLAlchemy?
+Ele permite estudar ORM e facilita trocar a conexão de SQLite para PostgreSQL sem reescrever toda a camada web.
+
+### A API já serve para integração real?
+Não. Ela é uma primeira etapa didática e usa a sessão web. Uma integração real normalmente teria autenticação própria por token e requisitos adicionais de segurança.
+
+### PostgreSQL foi testado de ponta a ponta?
+A lógica de migração e abstração de banco foi testada, mas a suíte local não possui um servidor PostgreSQL externo. Essa integração deve ser validada no ambiente que fornecer o servidor.
+
+### Esse projeto atende LGPD?
+Não é correto afirmar conformidade apenas por implementar recursos técnicos. O projeto demonstra conceitos relacionados a privacidade e segurança, mas conformidade real envolve processos, base legal, governança, infraestrutura e avaliação jurídica/institucional.

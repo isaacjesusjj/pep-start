@@ -55,6 +55,11 @@ def create_app(*, database_url: str | None = None, secret_key: str | None = None
     app.include_router(admin.router)
     app.include_router(api.router)
 
+    @app.get("/health", include_in_schema=False)
+    async def health_check():
+        """Endpoint simples usado pela hospedagem para verificar se a aplicação está ativa."""
+        return {"status": "ok"}
+
     @app.exception_handler(NaoAutenticado)
     async def nao_autenticado_handler(request: Request, exc: NaoAutenticado):
         return RedirectResponse(f"/login?next={request.url.path}", status_code=303)
